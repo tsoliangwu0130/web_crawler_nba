@@ -22,12 +22,6 @@ msg = MIMEMultipart('alternative')
 SUBJECT = "NBA daily report!\n"
 msg['Subject'] = Header(SUBJECT)
 
-# msg = """
-# From: {0}
-# To: {1}
-# Subject: {2}
-#
-# """.format(FROM, ", ".join(TO), SUBJECT)
 msg.attach(MIMEText(open('nba_report.txt', 'rb').read()))
 server.sendmail("programmingemail0930@gmail.com", "tsoliangwu0130@gmail.com", msg.as_string())
 
