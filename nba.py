@@ -7,6 +7,9 @@ from datetime import datetime
 from datetime import timedelta
 import smtplib
 from time import time
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.Header import Header
 
 
 def get_web_data(date):
@@ -39,8 +42,8 @@ def insert_sting_middle(str, word):
 
 def get_daily_score(web):
     # get the score data from the nba website
-    print 'Date: {}'.format(date)
-    print '--------------------Schedule-------------------\n'
+    message.append('Date: {}'.format(date))
+    message.append('--------------------Schedule-------------------\n')
     # get the data of daily games
     for index, game in enumerate(web['games']):
         host = game['hTeam']
@@ -48,7 +51,7 @@ def get_daily_score(web):
         text = game['nugget']
         location = game['arena']
         time = game['startTimeEastern']
-        print '{}. Scores: {}({}) - {:>3} : {}({}) - {:>3}\nLocation: {}\nTime: {}\nInfo: {}\n'\
+        message.append('{}. Scores: {}({}) - {:>3} : {}({}) - {:>3}\nLocation: {}\nTime: {}\nInfo: {}\n'\
             .format(
                 index+1,
                 team_name(host['triCode']),
@@ -59,12 +62,12 @@ def get_daily_score(web):
                 visitor['score'],
                 location['name'],
                 time,
-                text['text'])
+                text['text']))
 
 
 def next_game(team):
     # find the following game
-    print '--------------------Preview-------------------\n'
+    message.append('--------------------Preview-------------------\n')
     i = 1
     while True:
         now = datetime.now()
@@ -82,20 +85,21 @@ def next_game(team):
                     time = game['startTimeEastern']
                     team_A = team_name(host['triCode'])
                     team_B = team_name(visitor['triCode'])
-                    return 'The next game for the {}({}) will be on {}\n{} vs {}\nTime: {}\nLocation: {}'\
+                    message.append('The next game for the {}({}) will be on {}\n{} vs {}\nTime: {}\nLocation: {}'\
                         .format(team_name(team),
                                 team,
                                 date,
                                 team_name(visitor['triCode']),
                                 team_name(host['triCode']),
                                 time,
-                                location['name']), team_A, team_B
+                                location['name']))
+                    return team_A, team_B
         i += 1
 
 
 def get_hist_score(team_A, team_B):
 
-    print '--------------------History of Two Teams-------------------\n'
+    message.append('--------------------History of Two Teams-------------------\n')
 
     month = ['june', 'may', 'april', 'march', 'feburary', 'january', 'december', 'november', 'october']
     year = ['2018', '2017', '2016']
@@ -124,52 +128,62 @@ def get_hist_score(team_A, team_B):
                         (team_A == home['name'] and team_B == visitor['name']) or
                         (team_B == home['name'] and team_A == visitor['name'])
                     ):
-                        print '{} : {} ({}) vs {} ({})'.format(
+                        message.append('{} : {} ({}) vs {} ({})'.format(
                             home['date'],
                             home['name'],
                             home['points'],
                             visitor['name'],
-                            visitor['points'])
+                            visitor['points']))
             except AttributeError:
                 pass
 
 
 if __name__ == "__main__":
     start_time = time()
+    message = []
     # date = input('Please enter the date(Ex: 20180101): \n')
-    date = 20180226
+    date = 20180302
     # team_abbr = raw_input("Please enter the team abbreviation(Ex: CLE): \n")
     # team = insert_sting_middle('''''', team_abbr.upper())
     team = 'CLE'
 
     web = get_web_data(date)  # get the data from website
     get_daily_score(web)
+    # print '\n'.join(message)
     # daily_score = get_daily_score(web)  # get the daily scores
     next_game = next_game(team)
-    print next_game[0]
-    get_hist_score(next_game[1], next_game[2])
+    # print next_game[0]
+    # print '\n'.join(message)
+    get_hist_score(next_game[0], next_game[1])
+    print '\n'.join(message)
+
     end_time = time()
     print 'Time: {0}'.format(end_time - start_time)
 
+
+    with open('nba_report.txt', 'w') as f:
+        for i in message:
+            f.write(i)
+            f.write('\n')
+
     # send NBA daily report from email
-    # server = smtplib.SMTP('smtp.gmail.com', 587)
-    # server.starttls()
-    # server.login("luckymanyaya@gmail.com", "a45235187")
-    #
-    # FROM = 'monty@python.com'
-    # TO = ['jon@mycompany.com']  # must be a list
-    #
-    # SUBJECT = "NBA daily report!\n"
-    # # TEXT = "This message was sent with Python's smtplib."
-    #
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login("luckymanyaya@gmail.com", "a45235187")
+
+    FROM = 'monty@python.com'
+    TO = ['jon@mycompany.com']  # must be a list
+    msg = MIMEMultipart('alternative')
+    SUBJECT = "NBA daily report!\n"
+    msg['Subject'] = Header(SUBJECT)
+
+
     # msg = """
-    # From: %s
-    # To: %s
-    # Subject: %s
-    # %s
-    # %s
+    # From: {0}
+    # To: {1}
+    # Subject: {2}
     #
-    # """ % (FROM, ", ".join(TO), SUBJECT, daily_score, next_game)
-    #
-    # server.sendmail("luckymanyaya@gmail.com", "luckymanyo@gmail.com", msg)
-    # server.quit()
+    # """.format(FROM, ", ".join(TO), SUBJECT)
+    msg.attach(MIMEText(open('nba_report.txt', 'rb').read()))
+    server.sendmail("luckymanyay@gmail.com", "tsoliangwu0130@gmail.com", msg.as_string())
+    server.quit()
