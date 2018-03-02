@@ -5,11 +5,8 @@ import requests
 from bs4 import BeautifulSoup, element
 from datetime import datetime
 from datetime import timedelta
-import smtplib
 from time import time
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.Header import Header
+from nba_email import send_email
 
 
 def get_web_data(date):
@@ -166,24 +163,5 @@ if __name__ == "__main__":
             f.write(i)
             f.write('\n')
 
-    # # send NBA daily report from email
-    # server = smtplib.SMTP('smtp.gmail.com', 587)
-    # server.starttls()
-    # server.login("programmingemail0930@gmail.com", "pXf-dqL-DBX-v2Z")
-    #
-    # FROM = 'monty@python.com'
-    # TO = ['jon@mycompany.com']  # must be a list
-    # msg = MIMEMultipart('alternative')
-    # SUBJECT = "NBA daily report!\n"
-    # msg['Subject'] = Header(SUBJECT)
-    #
-    #
-    # # msg = """
-    # # From: {0}
-    # # To: {1}
-    # # Subject: {2}
-    # #
-    # # """.format(FROM, ", ".join(TO), SUBJECT)
-    # msg.attach(MIMEText(open('nba_report.txt', 'rb').read()))
-    # server.sendmail("programmingemail0930@gmail.com", "tsoliangwu0130@gmail.com", msg.as_string())
-    # server.quit()
+    email_subject = 'NBA daily report!!\n'
+    send_email(email_subject, 'nba_report.txt')
