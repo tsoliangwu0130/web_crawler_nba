@@ -40,7 +40,7 @@ def insert_sting_middle(str, word):
 def get_daily_score(web):
     # get the score data from the nba website
     message.append('Date: {}'.format(date))
-    message.append('--------------------Schedule-------------------\n')
+    message.append('--------------------------------------Schedule--------------------------------------\n')
     # get the data of daily games
     for index, game in enumerate(web['games']):
         host = game['hTeam']
@@ -48,7 +48,7 @@ def get_daily_score(web):
         text = game['nugget']
         location = game['arena']
         time = game['startTimeEastern']
-        message.append('{}. Scores: {}({}) - {:>3} : {}({}) - {:>3}\nLocation: {}\nTime: {}\nInfo: {}\n'\
+        message.append('{}. Scores: {:>23}({}) - {:>3} : {:>23}({}) - {:>3}\nLocation: {}\nTime: {}\nInfo: {}\n\n'\
             .format(
                 index+1,
                 team_name(host['triCode']),
@@ -64,7 +64,7 @@ def get_daily_score(web):
 
 def next_game(team):
     # find the following game
-    message.append('--------------------Preview-------------------\n')
+    message.append('--------------------------------------Preview---------------------------------------\n')
     i = 1
     while True:
         now = datetime.now()
@@ -82,21 +82,21 @@ def next_game(team):
                     time = game['startTimeEastern']
                     team_A = team_name(host['triCode'])
                     team_B = team_name(visitor['triCode'])
-                    message.append('The next game for the {}({}) will be on {}\n{} vs {}\nTime: {}\nLocation: {}'\
+                    message.append('The next game for the {}({}) will be on {}\n{} vs {}\nLocation: {}\nTime: {}\n'\
                         .format(team_name(team),
                                 team,
                                 date,
                                 team_name(visitor['triCode']),
                                 team_name(host['triCode']),
-                                time,
-                                location['name']))
+                                location['name'],
+                                time))
                     return team_A, team_B
         i += 1
 
 
 def get_hist_score(team_A, team_B):
 
-    message.append('--------------------History of Two Teams-------------------\n')
+    message.append('--------------------------------History of Two Teams--------------------------------\n')
 
     month = ['june', 'may', 'april', 'march', 'feburary', 'january', 'december', 'november', 'october']
     year = ['2018', '2017', '2016']
@@ -125,12 +125,13 @@ def get_hist_score(team_A, team_B):
                         (team_A == home['name'] and team_B == visitor['name']) or
                         (team_B == home['name'] and team_A == visitor['name'])
                     ):
-                        message.append('{} : {} ({}) vs {} ({})'.format(
-                            home['date'],
-                            home['name'],
-                            home['points'],
-                            visitor['name'],
-                            visitor['points']))
+                        if home['points'] is not None:
+                            message.append('{:>17} : {:>23} ({:>3})  vs  {:>23} ({:>3})'.format(
+                                home['date'],
+                                home['name'],
+                                home['points'],
+                                visitor['name'],
+                                visitor['points']))
             except AttributeError:
                 pass
 
@@ -139,24 +140,19 @@ if __name__ == "__main__":
     start_time = time()
     message = []
     # date = input('Please enter the date(Ex: 20180101): \n')
-    date = 20180302
+    date = 20180303
     # team_abbr = raw_input("Please enter the team abbreviation(Ex: CLE): \n")
     # team = insert_sting_middle('''''', team_abbr.upper())
     team = 'CLE'
 
     web = get_web_data(date)  # get the data from website
     get_daily_score(web)
-    # print '\n'.join(message)
-    # daily_score = get_daily_score(web)  # get the daily scores
     next_game = next_game(team)
-    # print next_game[0]
-    # print '\n'.join(message)
     get_hist_score(next_game[0], next_game[1])
     print '\n'.join(message)
 
     end_time = time()
     print 'Time: {0}'.format(end_time - start_time)
-
 
     with open('nba_report.txt', 'w') as f:
         for i in message:
