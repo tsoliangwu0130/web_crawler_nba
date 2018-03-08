@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import json
 import requests
@@ -169,12 +168,12 @@ def get_hist_score(team_A, team_B):
 if __name__ == "__main__":
     # start_time = time()
     message = []
-    # datetime = datetime.today()
+    datetime = datetime.today()
     # print datetime
-    # print datetime.strftime("%Y-%m-%d %H:%M")
+    date = datetime.strftime("%Y%m%d")
 
     # date = raw_input('Please enter the date(Ex: 20180101): \n')
-    date = '20180305'
+    # date = '20180305'
 
     # team_abbr = raw_input("Please enter the team abbreviation(Ex: CLE): \n")
     # team = insert_sting_middle('''''', team_abbr.upper())
@@ -182,9 +181,9 @@ if __name__ == "__main__":
 
     web = get_web_data(date)  # get the data from website
     get_daily_score(web)
-
+    # print '\n'.join(message)
     next_game = next_game(team)
-    get_hist_score(next_game[0], next_game[1])
+    # get_hist_score(next_game[0], next_game[1])
     print '\n'.join(message)
 
     # end_time = time()
