@@ -3,10 +3,10 @@
 import json
 import requests
 from bs4 import BeautifulSoup, element
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from time import time
 from nba_email import send_email
+from prettytable import PrettyTable
 
 
 def get_web_data(date):
@@ -52,22 +52,23 @@ def get_daily_score(web):
         utc_time = datetime.strptime(start_time, utc_format)
         local_time = utc_time + timedelta(hours=-8)
 
-        message.append('{}. Scores: {:>23}({}) (W{}/L{}) - {:>3} : {:>23}({}) (W{}/L{}) - {:>3}\nLocation: {}\nTime: {} PST\nInfo: {}\n\n'\
-            .format(
-                index+1,
-                team_name(visitor['triCode']),
-                visitor['triCode'],
-                visitor['win'],
-                visitor['loss'],
-                visitor['score'],
-                team_name(host['triCode']),
-                host['triCode'],
-                host['win'],
-                host['loss'],
-                host['score'],
-                location['name'],
-                local_time.strftime('%H:%M'),
-                info['text']))
+        table = PrettyTable(['Team', 'W/L', 'Score'])
+        table.add_row([
+            '({}) {}'.format(visitor['triCode'], team_name(visitor['triCode'])),
+            'W{}/L{}'.format(visitor['win'], visitor['loss']),
+            'N/A' if not visitor['score'] else visitor['score']
+        ])
+        table.add_row([
+            '({}) {}'.format(host['triCode'], team_name(host['triCode'])),
+            'W{}/L{}'.format(host['win'], host['loss']),
+            'N/A' if not host['score'] else host['score']
+        ])
+
+        message.append('{0} Game {1:02} {0}\n'.format('=' * 20, index + 1))
+        message.append(table.get_string())
+        message.append('Location: {}'.format(location['name']))
+        message.append('Time: {}'.format(local_time.strftime('%Y/%m/%d %H:%M')))
+        message.append('Info: {}\n'.format('N/A' if not info['text'] else info['text']))
 
 
 def next_game(team):
