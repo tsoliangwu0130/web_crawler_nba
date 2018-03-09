@@ -4,7 +4,6 @@ import json
 import requests
 from bs4 import BeautifulSoup, element
 from datetime import datetime, timedelta
-from time import time
 from nba_email import send_email
 from prettytable import PrettyTable
 
@@ -40,7 +39,7 @@ def insert_sting_middle(str, word):
 def get_daily_score(web):
     # get the score data from the nba website
     message.append('Date: {0}/{1}/{2}'.format(date[:4], date[4:6], date[6:]))
-    message.append('--------------------------------------Schedule--------------------------------------\n')
+    message.append('{0}Schedule{0}\n'.format('-' * 30))
     # get the data of daily games
     for index, game in enumerate(web['games']):
         host = game['hTeam']
@@ -73,7 +72,7 @@ def get_daily_score(web):
 
 def next_game(team):
     # find the following game
-    message.append('-----------------------------------------Preview------------------------------------------\n')
+    message.append('{0}Preview{0}\n'.format('-' * 40))
     i = 1
     while True:
         now = datetime.now()
@@ -125,10 +124,9 @@ def next_game(team):
 
 def get_hist_score(team_A, team_B):
 
-    message.append('--------------------------------History of Two Teams--------------------------------\n')
-
+    message.append('{0}History of Two Teams{0}\n'.format('-' * 30))
     month = ['june', 'may', 'april', 'march', 'feburary', 'january', 'december', 'november', 'october']
-    year = ['2018', '2017', '2016']
+    year = ['2018', '2017']
 
     for i in xrange(len(year)):
         for j in xrange(len(month)):
@@ -154,8 +152,8 @@ def get_hist_score(team_A, team_B):
                         (team_A == home['name'] and team_B == visitor['name']) or
                         (team_B == home['name'] and team_A == visitor['name'])
                     ):
-                        # if home['points'].encode('utf-8') is not None:
-                            message.append('{:>17} : {:>23} - {:>3}  vs  {:>23} - {:>3}'.format(
+                        'N/A' if not home['points'] else visitor['points']
+                        message.append('{:>17} : {:>23} - {:>3}  vs  {:>23} - {:>3}'.format(
                                 home['date'],
                                 home['name'],
                                 home['points'],
@@ -184,16 +182,13 @@ if __name__ == "__main__":
     get_daily_score(web)
     # print '\n'.join(message)
     next_game = next_game(team)
-    # get_hist_score(next_game[0], next_game[1])
-    print '\n'.join(message)
+    get_hist_score(next_game[0], next_game[1])
+
+    # message = '<font face="Courier New, Courier, monospace">' + str(message) + '</font>'
+    # print '\n'.join(message)
 
     # end_time = time()
     # print 'Time: {0}'.format(end_time - start_time)
 
-    # with open('nba_report.txt', 'w') as f:
-    #     for i in message:
-    #         f.write(i)
-    #         f.write('\n')
-    #
-    # email_subject = 'NBA daily report!!\n'
-    # send_email(email_subject, 'nba_report.txt')
+    email_subject = 'NBA daily report!!\n'
+    send_email(email_subject, '\n'.join(message))
