@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.Header import Header
 
 
-def send_email(subject, filename):
+def send_email(subject, message):
     with open('config.json') as config:
         config_data = json.load(config)
         smtp_host = config_data['smtp_host']
@@ -21,9 +21,14 @@ def send_email(subject, filename):
         server.login(email, password)
 
         msg = MIMEMultipart()
+
+        # msg.attach(MIMEText(open(filename, 'rb').read()))
+
+        html_start = '<font face="Courier New, Courier, monospace"><pre>'
+        html_end = '</pre></font>'
+        msg = MIMEText(html_start + message.replace('\\n', '<br/>') + html_end, _subtype='html', _charset='utf-8')
         msg['Subject'] = Header(subject)
 
-        msg.attach(MIMEText(open(filename, 'rb').read()))
         server.sendmail("programmingemail0930@gmail.com", "luckymanyo@gmail.com", msg.as_string())
 
         server.quit()
