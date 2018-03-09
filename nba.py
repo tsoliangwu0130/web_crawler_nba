@@ -56,19 +56,19 @@ def get_daily_score(web):
         table.add_row([
             '({}) {}'.format(visitor['triCode'], team_name(visitor['triCode'])),
             'W{}/L{}'.format(visitor['win'], visitor['loss']),
-            '{}'.format(visitor['score'])
+            'N/A' if not visitor['score'] else visitor['score']
         ])
         table.add_row([
             '({}) {}'.format(host['triCode'], team_name(host['triCode'])),
             'W{}/L{}'.format(host['win'], host['loss']),
-            '{}'.format(host['score'])
+            'N/A' if not host['score'] else host['score']
         ])
 
         message.append('{0} Game {1:02} {0}\n'.format('=' * 20, index + 1))
         message.append(table.get_string())
         message.append('Location: {}'.format(location['name']))
-        message.append('Time: {}'.format(local_time.strftime('%H:%M')))
-        message.append('Info: {}\n'.format(info['text']))
+        message.append('Time: {}'.format(local_time.strftime('%Y/%m/%d %H:%M')))
+        message.append('Info: {}\n'.format('N/A' if not info['text'] else info['text']))
 
 
 def next_game(team):
