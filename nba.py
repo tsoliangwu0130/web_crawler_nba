@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 import json
 import requests
@@ -53,17 +53,17 @@ def get_daily_score(web):
 
         table = PrettyTable(['Team', 'W/L', 'Score'])
         table.add_row([
-            '({}) {}'.format(visitor['triCode'], team_name(visitor['triCode'])),
+            '({:>3}) {:^23}'.format(visitor['triCode'], team_name(visitor['triCode'])),
             'W{}/L{}'.format(visitor['win'], visitor['loss']),
             'N/A' if not visitor['score'] else visitor['score']
         ])
         table.add_row([
-            '({}) {}'.format(host['triCode'], team_name(host['triCode'])),
+            '({:>3}) {:^23}'.format(host['triCode'], team_name(host['triCode'])),
             'W{}/L{}'.format(host['win'], host['loss']),
             'N/A' if not host['score'] else host['score']
         ])
 
-        message.append('{0} Game {1:02} {0}\n'.format('=' * 20, index + 1))
+        message.append('{0} Game {1:02} {0}\n'.format('=' * 21, index + 1))
         message.append(table.get_string())
         message.append('Location: {}'.format(location['name']))
         message.append('Time: {}'.format(local_time.strftime('%Y/%m/%d %H:%M')))
@@ -102,7 +102,8 @@ def next_game(team):
                         series_win = visitor['seriesWin']
                         series_loss = visitor['seriesLoss']
 
-                    message.append('The next game for the {0}({1}) will be on {2}/{3}/{4}\n{5} (W{6}/L{7}) vs {8} (W{9}/L{10})\nThe {11}({12}) in this series (W{13}/L{14})\nLocation: {15}\nTime: {16} PST\n'\
+                    message.append("The next game for the {}({}) will be on {}/{}/{}\n{} (W{}\
+/L{}) vs {} (W{}/L{})\nThe {}({}) in this series (W{}/L{})\nLocation: {}\nTime: {} \n"
                         .format(team_name(team),
                                 team,
                                 date[:4], date[4:6], date[6:],
@@ -141,12 +142,12 @@ def get_hist_score(team_A, team_B):
                         'date': game.find('th', {'data-stat': 'date_game'}).text,
                         'name': game.find('td', {'data-stat': 'home_team_name'}).text,
                         'points': game.find('td', {'data-stat': 'home_pts'}).text
-                        }
+                    }
 
                     visitor = {
                         'name': game.find('td', {'data-stat': 'visitor_team_name'}).text,
                         'points': game.find('td', {'data-stat': 'visitor_pts'}).text
-                        }
+                    }
 
                     if (
                         (team_A == home['name'] and team_B == visitor['name']) or
@@ -182,13 +183,12 @@ if __name__ == "__main__":
     get_daily_score(web)
     # print '\n'.join(message)
     next_game = next_game(team)
-    get_hist_score(next_game[0], next_game[1])
+    # get_hist_score(next_game[0], next_game[1])
 
-    # message = '<font face="Courier New, Courier, monospace">' + str(message) + '</font>'
-    # print '\n'.join(message)
+    print '\n'.join(message)
 
     # end_time = time()
     # print 'Time: {0}'.format(end_time - start_time)
 
-    email_subject = 'NBA daily report!!\n'
-    send_email(email_subject, '\n'.join(message))
+    # email_subject = 'NBA daily report!!\n'
+    # send_email(email_subject, '\n'.join(message))
