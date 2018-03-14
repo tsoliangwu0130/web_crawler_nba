@@ -129,6 +129,7 @@ def get_hist_score(team_A, team_B):
     month = ['june', 'may', 'april', 'march', 'feburary', 'january', 'december', 'november', 'october']
     year = ['2018', '2017']
 
+    win = 0
     for i in xrange(len(year)):
         for j in xrange(len(month)):
             try:
@@ -152,24 +153,30 @@ def get_hist_score(team_A, team_B):
                     if (
                         (team_A == home['name'] and team_B == visitor['name']) or
                         (team_B == home['name'] and team_A == visitor['name'])
+
                     ):
+                        if home['points'] > visitor['points']:
+                            win += 1.0
+                        else:
+                            pass
                         'N/A' if not home['points'] else visitor['points']
+
                         message.append('{:>17} : {:>23} - {:>3}  vs  {:>23} - {:>3}'.format(
                                 home['date'],
                                 home['name'],
                                 home['points'],
                                 visitor['name'],
                                 visitor['points']))
+                        # percentage = (win / ) * 100
 
             except AttributeError:
                 pass
+    # message.append('The winning percentage is {0}%'.format(percentage))
 
 
 if __name__ == "__main__":
-    # start_time = time()
     message = []
     datetime = datetime.today()
-    # print datetime
     date = datetime.strftime("%Y%m%d")
 
     # date = raw_input('Please enter the date(Ex: 20180101): \n')
@@ -186,9 +193,6 @@ if __name__ == "__main__":
     # get_hist_score(next_game[0], next_game[1])
 
     print '\n'.join(message)
-
-    # end_time = time()
-    # print 'Time: {0}'.format(end_time - start_time)
 
     # email_subject = 'NBA daily report!!\n'
     # send_email(email_subject, '\n'.join(message))
