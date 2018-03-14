@@ -29,6 +29,6 @@ def send_email(subject, message):
         msg = MIMEText(html_start + message.replace('\\n', '<br/>') + html_end, _subtype='html', _charset='utf-8')
         msg['Subject'] = Header(subject)
 
-        server.sendmail("programmingemail0930@gmail.com", "luckymanyo@gmail.com", msg.as_string())
+        server.sendmail("programmingemail0930@gmail.com", "tsoliangwu0130@gmail.com", msg.as_string())
 
         server.quit()
